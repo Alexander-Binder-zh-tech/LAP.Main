@@ -1,0 +1,76 @@
+@using HR4You.Model.Base.Pagination
+@using Newtonsoft.Json
+@inject HttpClient HttpClient
+@typeparam TItem
+
+<div class="pagination flex flex-row gap-3 justify-center">
+    <button @onclick="PreviousPage" class="btn btn-secondary">
+        <i class="fa-solid fa-backward"></i> Previous-page
+    </button>
+    <button @onclick="NextPage" class="btn btn-secondary">
+        Next-page <i class="fa-solid fa-forward"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public PagedResponseKeySet<TItem>? entries { get; set; }
+    [Parameter] public EventCallback<PagedResponseKeySet<TItem>> OnPageChanged { get; set; }
+    [Parameter] public required Dictionary<string, string> Parameters { get; set; }
+    [Parameter] public string ApiEndpoint { get; set; } = string.Empty;
+
+    private const int pageSize = 10;
+
+    private async Task PreviousPage()
+    {
+        try
+        {
+            await LocalUserStorage.Load();
+            var reference = (entries.Reference - 1) - pageSize;
+
+            var tempParameters = Parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value);
+            tempParameters.Add(nameof(reference), reference.ToString());
+
+            var request = HttpQueryHandler.CreateEndpointRequestWithJwt(HttpMethod.Get, ApiEndpoint, tempParameters, LocalUserStorage.UserInfo!.AuthToken);
+            var response = await HttpClient.SendAsync(request);
+
+            var content = await HttpQueryHandler.ProcessHttpResponse(NavigationManager, response);
+            if (content != null)
+            {
+                var newEntries = JsonConvert.DeserializeObject<PagedResponseKeySet<TItem>>(content);
+
+                await OnPageChanged.InvokeAsync(newEntries);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching entries: {ex.Message}");
+        }
+    }
+
+    private async Task NextPage()
+    {
+        try
+        {
+            await LocalUserStorage.Load();
+            var reference = (entries.Reference - 1) + pageSize;
+
+            var tempParameters = Parameters.ToDictionary(parameter => parameter.Key, parameter => parameter.Value);
+            tempParameters.Add(nameof(reference), reference.ToString());
+
+            var request = HttpQueryHandler.CreateEndpointRequestWithJwt(HttpMethod.Get, ApiEndpoint, tempParameters, LocalUserStorage.UserInfo!.AuthToken);
+            var response = await HttpClient.SendAsync(request);
+
+            var content = await HttpQueryHandler.ProcessHttpResponse(NavigationManager, response);
+            if (content != null)
+            {
+                var newEntries = JsonConvert.DeserializeObject<PagedResponseKeySet<TItem>>(content);
+
+                await OnPageChanged.InvokeAsync(newEntries);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching entries: {ex.Message}");
+        }
+    }
+}

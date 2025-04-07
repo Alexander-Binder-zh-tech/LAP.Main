@@ -1,0 +1,18 @@
+@using HR4You.Components.Popups
+@rendermode InteractiveServer
+
+<PopupHoliday @ref="popupRef"/>
+<button type="button" class="btn btn-dark AddTime" @onclick="(() => CreateEntry())"><i class="fa-solid fa-plus"></i></button>
+
+@code {
+    [Parameter]
+    public EventCallback OnHolidayUpdated3 { get; set; }
+    private PopupHoliday popupRef;
+
+    private async Task CreateEntry()
+    {
+        await popupRef.ShowCreate("Add Holiday");
+    }
+    
+    
+}

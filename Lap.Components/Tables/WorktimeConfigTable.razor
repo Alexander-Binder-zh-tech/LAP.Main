@@ -1,0 +1,82 @@
+﻿@using HR4You.Components.Popups
+@rendermode InteractiveServer
+@inject HttpClient HttpClient
+
+<PopupWorktimeConfig @ref="popupRef" OnWorktimeUpdated="RefreshTable" />
+
+<table class="blueTable">
+    <thead>
+        <tr>
+            <th>Monday (h)</th>
+            <th>Tuesday (h)</th>
+            <th>Wednesday (h)</th>
+            <th>Thursday (h)</th>
+            <th>Friday (h)</th>
+            <th>Saturday (h)</th>
+            <th>Sunday (h)</th>
+            <th>Actions</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in entries)
+        {
+            <tr>
+                <td>@entry.MinMonHours</td>
+                <td>@entry.MinTueHours</td>
+                <td>@entry.MinWedHours</td>
+                <td>@entry.MinThuHours</td>
+                <td>@entry.MinFriHours</td>
+                <td>@entry.MinSatHours</td>
+                <td>@entry.MinSunHours</td>
+                <td class="table-action">
+                <button type="button" class="btn btn-primary" @onclick="(() => EditEntry(entry.Id))"><i class="fa fa-pencil"></i></button>
+                </td>
+            </tr>
+        }       
+    </tbody>
+</table>
+
+
+
+@code {
+    [Parameter]
+    public List<WorkTime> entries { get; set; }
+
+    private PopupWorktimeConfig popupRef;
+
+    [Parameter]
+    public EventCallback OnWorktimeUpdated2 { get; set; }
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && popupRef != null)
+        {
+            popupRef.OnWorktimeUpdated = EventCallback.Factory.Create(this, RefreshTable);
+        }
+    }
+
+    //worktime
+    public string RequestURLEdit = "http://localhost:5001/api/master-data/work-time/get?addDeleted=true&Id=";
+
+    private void EditEntry(int GivenId)
+    {
+        popupRef.Show(GivenId, RequestURLEdit, "Edit Project");
+    }
+
+    private async Task RefreshTable()
+    {
+        if (OnWorktimeUpdated2.HasDelegate)
+        {
+            await OnWorktimeUpdated2.InvokeAsync(); // Notify the parent component
+        }
+        else
+        {
+            Console.WriteLine("no delegate assigned");
+        }
+    }
+
+}
+
+

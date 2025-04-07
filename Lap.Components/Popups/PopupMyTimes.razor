@@ -1,0 +1,307 @@
+﻿@using HR4You.Model.Base.Pagination
+@rendermode InteractiveServer
+@inject HttpClient HttpClient
+
+@{
+    var showClass = IsVisible ? "d-block" : "d-none";
+}
+
+<div class="toast-container position-absolute @showClass" data-bs-autohide="true" data-bs-delay="50000"
+     style="left: 50%; position: fixed; transform: translate(-50%, 0px); z-index: 9999; width: 80%; box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
+
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true"
+         style="left: 50%; position: fixed; transform: translate(-50%, 0px); z-index: 9999; width: 80%; background-color:white; box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
+        <div class="toast-header">
+            <strong class="me-auto">@HeaderText</strong>
+            <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+        </div>
+
+        <EditForm Model="myTimes" OnValidSubmit="Submit">
+
+            <div class="toast-body" style="padding: 20px;">
+                <div class="container">
+                    <div class="row">
+                        <!-- Project Number and Type -->
+                        <div class="col-sm-4">
+                            <label>Project</label>
+                            <InputSelect @bind-Value="myTimes.ProjectId" class="form-select">
+                                @if (projectList != null)
+                                {
+                                    @foreach (var value in projectList.Data)
+                                    {
+                                        if (@value.Id == myTimes.ProjectId)
+                                        {
+                                            <option selected value="@value.Id">@value.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@value.Id">@value.Name</option>
+                                        }
+
+                                    } 
+                                }
+                            </InputSelect>
+
+                            <label>Type</label>
+                            <InputSelect @bind-Value="myTimes.Type" class="form-select">
+                                @foreach (var value in Enum.GetValues(typeof(ActivityType)))
+                                {
+                                    <option>@value</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <!-- Date and Tag -->
+                        <div class="col-sm-4">
+                            <label>Date</label>
+                            <InputDate @bind-Value="myTimes.Date" class="form-control mb-2" />
+                            <ValidationMessage For="(() => myTimes.Date)" class="text-red-600 font-light mb-2"/>
+
+                            <label>Tag</label>
+                            <InputSelect @bind-Value="myTimes.TagId" class="form-select">
+                                @if (tagList != null)
+                                {
+                                    @foreach (var value in tagList.Data)
+                                    {
+                                        if (@value.Id == myTimes.TagId)
+                                        {
+                                            <option selected value="@value.Id">@value.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@value.Id">@value.Name</option>
+                                        }
+
+                                    } 
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <!-- StartTime and IsHoliday -->
+                        <div class="col-sm-2">
+                            <label for="startTime">Start Time (hh:mm)</label>
+                            <div class="d-flex align-items-center">
+                                <!-- Hour Selection -->
+                                <InputSelect @bind-Value="selectedHourST" TValue="int" class="form-select me-2" style="width: 70px; overflow-y: auto;">
+                                    @for (int hour = 0; hour < 24; hour++)
+                                    {
+                                        <option value="@hour">@hour.ToString("D2")</option>
+                                    }
+                                </InputSelect>
+                            
+                                <!-- Minute Selection -->
+                                <InputSelect @bind-Value="selectedMinuteST" TValue="int" class="form-select" style="width: 70px; overflow-y: auto;">
+                                    @foreach (var minute in minuteIntervals)
+                                    {
+                                        <option value="@minute">@minute.ToString("D2")</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="(() => myTimes.StartTime)" class="text-red-600 font-light mb-2"/>
+
+                            <label>Is Holiday</label>
+                            <InputCheckbox @bind-Value="myTimes.IsHoliday" />
+                        </div>
+
+                        <!-- EndTime and IsBillable -->
+                        <div class="col-sm-2">
+                            <label for="endTime">End Time (hh:mm)</label>
+                            <div class="d-flex align-items-center">
+                                <!-- Hour Selection -->
+                                <InputSelect @bind-Value="selectedHourET" TValue="int" class="form-select me-2" style="width: 70px; overflow-y: auto;">
+                                    @for (int hour = 0; hour < 24; hour++)
+                                    {
+                                        <option value="@hour">@hour.ToString("D2")</option>
+                                    }
+                                </InputSelect>
+                            
+                                <!-- Minute Selection -->
+                                <InputSelect @bind-Value="selectedMinuteET" TValue="int" class="form-select" style="width: 70px; overflow-y: auto;">
+                                    @foreach (var minute in minuteIntervals)
+                                    {
+                                        <option value="@minute">@minute.ToString("D2")</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="(() => myTimes.EndTime)" class="text-red-600 font-light mb-2"/>
+
+                            <label>Is Billable</label>
+                            <InputCheckbox @bind-Value="myTimes.IsBillable" />
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-sm-8">
+                            <label>Description</label>
+                            <InputTextArea @bind-Value="myTimes.Description" rows="4" class="form-control mb-2" />
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <button type="submit" class="btn btn-dark">Save</button>
+                            <button type="button" class="btn btn-outline-secondary" @onclick="Close">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnMyTimesUpdated { get; set; }
+
+    [Parameter]
+    public string? HeaderText { get; set; }
+
+    [Parameter]
+    public string? GivenId { get; set; }
+
+    private List<int> minuteIntervals = new List<int> { 0, 15, 30, 45 };
+
+    HourEntry myTimes = new HourEntry();
+
+    public PagedResponseOffset<Project>? projectList;
+
+    public PagedResponseOffset<Tag>? tagList;
+
+    public string RequestURLProject = "http://localhost:5001/api/master-data/project/get-all-paged";
+
+    public string RequestURLTag = "http://localhost:5001/api/master-data/tag/get-all-paged";
+
+    bool isEdit = false;
+    
+
+    async public Task ShowEdit(int givenId, string requestURL, string headerText)
+    {
+        HeaderText = headerText;
+        GivenId = givenId.ToString();
+        myTimes = await HttpClient.GetFromJsonAsync<HourEntry>(requestURL + GivenId);
+        projectList = await HttpClient.GetFromJsonAsync<PagedResponseOffset<Project>>(RequestURLProject);
+        tagList = await HttpClient.GetFromJsonAsync<PagedResponseOffset<Tag>>(RequestURLTag);
+        IsVisible = true;
+        isEdit = true;
+        StateHasChanged();
+    }
+
+    async public Task ShowCreate(string headerText)
+    {
+        HeaderText = headerText;
+        projectList = await HttpClient.GetFromJsonAsync<PagedResponseOffset<Project>>(RequestURLProject);
+        tagList = await HttpClient.GetFromJsonAsync<PagedResponseOffset<Tag>>(RequestURLTag);
+        IsVisible = true;
+        isEdit = false;
+        StateHasChanged();
+    }
+
+    private async Task Submit()
+    {
+        var editURL = "http://localhost:5001/api/master-data/hour-entry/edit?Id=";
+        var createURL = "http://localhost:5001/api/master-data/hour-entry/create";
+
+        if (isEdit == true)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync(editURL + GivenId, myTimes);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Project saved successfully.");
+
+                    if (OnMyTimesUpdated.HasDelegate)
+                    {
+                        await OnMyTimesUpdated.InvokeAsync(); // Notify the parent component
+                    }
+                    else
+                    {
+                        Console.WriteLine("OnCustomerUpdated has no delegate assigned.");
+                    }
+
+                    Close();
+                }
+                else
+                {
+                    Console.WriteLine("Error occurred while saving the project: " + response.ReasonPhrase);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception occurred: " + ex.Message);
+            }
+        }
+        else if (isEdit == false)
+        {
+            await LocalUserStorage.Load();
+            myTimes.UserId = LocalUserStorage.UserInfo.Id;
+            var response = await HttpClient.PostAsJsonAsync(createURL, myTimes);
+            if (response.IsSuccessStatusCode)
+            {
+                if (OnMyTimesUpdated.HasDelegate)
+                {
+                    await OnMyTimesUpdated.InvokeAsync(); // Notify the parent component
+                }
+                Console.WriteLine("Project saved successfully.");
+
+                Close();
+            }
+        }
+    }
+
+    // Selected values for hours and minutes start time
+    private int selectedHourST
+    {
+        get => myTimes.StartTime.Hour;
+        set
+        {
+            myTimes.StartTime = new TimeOnly(value, myTimes.StartTime.Minute);
+        }
+    }
+
+    private int selectedMinuteST
+    {
+        get => myTimes.StartTime.Minute;
+        set
+        {
+            myTimes.StartTime = new TimeOnly(myTimes.StartTime.Hour, value);
+        }
+    }
+
+    // Selected values for hours and minutes end time
+    private int selectedHourET
+    {
+        get => myTimes.EndTime.Hour;
+        set
+        {
+            myTimes.EndTime = new TimeOnly(value, myTimes.EndTime.Minute);
+        }
+    }
+
+    private int selectedMinuteET
+    {
+        get => myTimes.EndTime.Minute;
+        set
+        {
+            myTimes.EndTime = new TimeOnly(myTimes.EndTime.Hour, value);
+        }
+    }
+
+    private void Close()
+    {
+        myTimes = new HourEntry();
+        HeaderText = string.Empty;
+        GivenId = null;
+        IsVisible = false;
+
+        StateHasChanged();
+    }
+}

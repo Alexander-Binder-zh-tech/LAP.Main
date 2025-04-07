@@ -1,0 +1,48 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace Lap.Model.Models.Project
+{
+    [Table("lap_project")]
+    public class Project : ModelBase
+    {
+        [Required(ErrorMessage = "Project number required!")] public int ProjectNumber { get; set; } //todo set constraint for unique
+
+        [Required] public int CustomerId { get; set; }
+
+        [JsonIgnore]
+        [ForeignKey(nameof(CustomerId))]
+        public Customer.Customer? Customer { get; set; } = null!;
+
+        [Required(ErrorMessage = "Name required!")] public string Name { get; set; } = string.Empty;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [Required]
+        public ProjectState State { get; set; }
+        public string? Description { get; set; }
+
+        [JsonIgnore] public ICollection<HourEntry.HourEntry>? HourEntries { get; } = new List<HourEntry.HourEntry>();
+
+        public override void Set(ModelBase model)
+        {
+            var data = model as Project;
+            if (data == null)
+            {
+                throw new ArgumentException("called with wrong type -> should be Project");
+            }
+
+            ProjectNumber = data.ProjectNumber;
+            CustomerId = data.CustomerId;
+            Name = data.Name;
+            State = data.State;
+            Description = data.Description;
+        }
+    }
+
+    public enum ProjectState
+    {
+        Open,
+        Closed
+    }
+}

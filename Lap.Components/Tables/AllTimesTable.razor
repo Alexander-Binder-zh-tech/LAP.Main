@@ -1,0 +1,109 @@
+@using HR4You.Components.Popups
+@rendermode InteractiveServer
+@inject HttpClient HttpClient
+
+<PopupAllTimes @ref="popupRef" OnAllTimesUpdated="RefreshTable" />
+
+<table class="blueTable">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Duration</th>
+            <th>Worktime Diff</th>
+            <th>Type</th>
+            <th>Project</th>
+            <th>Tag</th>
+            <th>Description</th>
+            <th>Is Holiday</th>
+            <th>Is Billable</th>
+            <th>Creation Date</th>
+            <th>Last Modified</th>
+            <th>Is Deleted</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in entries)
+        {
+            <tr>
+                <td>@entry.Date</td>
+                <td>@entry.StartTime</td>
+                <td>@entry.EndTime</td>
+                <td>@entry.Duration</td>
+                <td>@entry.WorktimeDiff</td>
+                <td>@entry.Type</td>
+                <td>@(projectNames.TryGetValue(entry.ProjectId, out var projectName) ? projectName : "No Project")</td>
+                <td>@(tagNames.TryGetValue(entry.TagId.GetValueOrDefault(), out var tagName) ? tagName : "No Tag")</td>
+                <td>@entry.Description</td>
+                <td>@(entry.IsHoliday ? "Yes" : "No")</td>
+                <td>@(entry.IsBillable ? "Yes" : "No")</td>
+                <td>@entry.CreationDateTime</td>
+                <td>@entry.LastModifiedAt</td>
+                <td>@(entry.Deleted ? "Yes" : "No")</td>
+                <td class="table-action">
+                    <button type="button" class="btn btn-danger" @onclick="(() => DeleteEntry(entry.Id))"><i class="fa fa-trash"></i></button>
+                    <button type="button" class="btn btn-primary" @onclick="(() => EditEntry(entry.Id))"><i class="fa fa-pencil"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+
+    [Parameter]
+    public List<HourEntry> entries { get; set; }
+
+    [Parameter]
+    public EventCallback OnAllTimesUpdated2 { get; set; }
+
+    [Parameter]
+    public Dictionary<int, string> projectNames { get; set; }
+
+    [Parameter]
+    public Dictionary<int?, string> tagNames { get; set; }
+
+    private PopupAllTimes popupRef;
+
+    public string RequestURL = "http://localhost:5001/api/master-data/hour-entry/get?addDeleted=true&Id=";
+    public string RequestURLEdit = "http://localhost:5001/api/master-data/hour-entry/get?addDeleted=true&Id=";
+    public string RequestURLDelete = "http://localhost:5001/api/master-data/hour-entry/delete?Id=";
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && popupRef != null)
+        {
+            popupRef.OnAllTimesUpdated = EventCallback.Factory.Create(this, RefreshTable);
+        }
+    }
+
+    private void EditEntry(int GivenId)
+    {
+        popupRef.ShowEdit(GivenId, RequestURLEdit, "Edit Project");
+    }
+
+    private async Task DeleteEntry(int GivenId)
+    {
+        await HttpClient.DeleteFromJsonAsync<HourEntry>(RequestURLDelete + GivenId);
+        Console.WriteLine("RefreshTable() was called from CustomersTable");
+        RefreshTable();
+    }
+
+    private async Task RefreshTable()
+    {
+        Console.WriteLine("RefreshTable() was called from CustomersTable");
+        if (OnAllTimesUpdated2.HasDelegate)
+        {
+            await OnAllTimesUpdated2.InvokeAsync(); // Notify the parent component
+        }
+        else
+        {
+            Console.WriteLine("OnCustomerUpdated has no delegate assigned.");
+        }
+    }
+
+}

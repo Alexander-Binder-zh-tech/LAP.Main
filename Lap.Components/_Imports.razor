@@ -1,0 +1,27 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text;
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using HR4You
+@using HR4You.Components
+@using HR4You.Components.Handler
+@using HR4You.Model.Base.Models.HourEntry
+@using HR4You.Model.Base.Models.Customer
+@using HR4You.Model.Base.Models.Project
+@using HR4You.Model.Base.Models.Tag
+@using HR4You.Model.Base.Models.WorkTime
+@using HR4You.Model.Base.Models.Holiday
+@using HR4you.Security
+@using HR4you.Security.Models
+
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@inject LocalUserStorage LocalUserStorage
+
+
