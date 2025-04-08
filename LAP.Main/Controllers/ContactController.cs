@@ -1,29 +1,29 @@
-using LAP.Main.Contexts.Customer;
+using LAP.Main.Contexts.Contact;
 using Lap.Model;
-using Lap.Model.Models.Customer;
+using Lap.Model.Models.Contact;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LAP.Main.Controllers;
 
-[Route("/api/master-data/customer")]
+[Route("/api/master-data/contact")]
 [ApiController]
-public class CustomerController : ControllerBase
+public class ContactController : ControllerBase
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public CustomerController(IServiceProvider serviceProvider)
+    public ContactController(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     
     [HttpGet("get-all")]
-    [SwaggerOperation("GetAllCustomers")]
+    [SwaggerOperation("GetAllContacts")]
     //[Authorize(Policy = BuildInUserRoles.AdminRole)]
-    public async Task<IActionResult> GetAllCustomers([FromQuery] bool addDeleted)
+    public async Task<IActionResult> GetAllContacts([FromQuery] bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<ContactContext>()!;
         
         var result = await sc.GetAll(addDeleted);
         return result.Error switch
@@ -35,12 +35,12 @@ public class CustomerController : ControllerBase
     }
     
     [HttpGet("get")]
-    [SwaggerOperation("GetCustomer")]
+    [SwaggerOperation("GetContact")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> GetCustomer(int id, bool addDeleted)
+    public async Task<IActionResult> GetContact(int id, bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<ContactContext>()!;
         
         var result = await sc.Get(id, addDeleted);
         return result.Error switch
@@ -52,14 +52,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("create")]
-    [SwaggerOperation("CreateCustomer")]
+    [SwaggerOperation("CreateContact")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> CreateCustomer([FromBody]Customer customer)
+    public async Task<IActionResult> CreateContact([FromBody] Contact contact)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<ContactContext>()!;
         
-        var result = await sc.Create(customer);
+        var result = await sc.Create(contact);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -69,14 +69,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("edit")]
-    [SwaggerOperation("EditCustomer")]
+    [SwaggerOperation("EditContact")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> EditCustomer(int id, [FromBody] Customer customer)
+    public async Task<IActionResult> EditContact(int id, [FromBody] Contact contact)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<ContactContext>()!;
         
-        var result = await sc.Edit(id, customer);
+        var result = await sc.Edit(id, contact);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -86,12 +86,12 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [SwaggerOperation("DeleteCustomer")]
+    [SwaggerOperation("DeleteContact")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> DeleteCustomer(int id)
+    public async Task<IActionResult> DeleteContact(int id)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<ContactContext>()!;
         
         var result = await sc.SetDelete(id, true);
         return result.Error switch

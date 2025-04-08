@@ -1,10 +1,10 @@
 ﻿using Lap.Components.Handler;
+using LAP.Main.Contexts.Address;
+using LAP.Main.Contexts.Cart;
+using LAP.Main.Contexts.Contact;
 using LAP.Main.Contexts.Customer;
-using LAP.Main.Contexts.Holiday;
-using LAP.Main.Contexts.HourEntry;
-using LAP.Main.Contexts.Project;
-using LAP.Main.Contexts.Tag;
-using LAP.Main.Contexts.WorkTime;
+using LAP.Main.Contexts.Order;
+using LAP.Main.Contexts.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace LAP.Main.Contexts;
@@ -15,29 +15,29 @@ public static class ModelContextHelper
     {
         webApplicationBuilder.Services.AddHttpContextAccessor();
 
-        //HourEntryContext
+        //AddressContext
         webApplicationBuilder.Services.AddScoped(sp =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.HourEntry.HourEntry>>();
+            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Address.Address>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new HourEntryContext(optionsBuilder.Options, sp.GetService<ILogger<HourEntryContext>>()!, sp);
+            return new AddressContext(optionsBuilder.Options, sp,sp.GetService<ILogger<AddressContext>>()!);
         });
-        //WorkTimeContext
+        //CartContext
         webApplicationBuilder.Services.AddScoped(sp =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.WorkTime.WorkTime>>();
+            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Cart.Cart>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new WorkTimeContext(optionsBuilder.Options, sp.GetService<ILogger<WorkTimeContext>>()!, sp);
+            return new CartContext(optionsBuilder.Options, sp,sp.GetService<ILogger<CartContext>>()!);
         });
-        //HolidayContext
+        //ContactContext
         webApplicationBuilder.Services.AddScoped(sp =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Holiday.Holiday>>();
+            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Contact.Contact>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new HolidayContext(optionsBuilder.Options, sp.GetService<ILogger<HolidayContext>>()!, sp);
+            return new ContactContext(optionsBuilder.Options, sp,sp.GetService<ILogger<ContactContext>>()!);
         });
         //CustomerContext
         webApplicationBuilder.Services.AddScoped(sp =>
@@ -45,23 +45,23 @@ public static class ModelContextHelper
             var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Customer.Customer>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new CustomerContext(optionsBuilder.Options, sp.GetService<ILogger<CustomerContext>>()!, sp);
+            return new CustomerContext(optionsBuilder.Options, sp,sp.GetService<ILogger<CustomerContext>>()!);
         });
-        //ProjectContext
+        //OrderContext
         webApplicationBuilder.Services.AddScoped(sp =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Project.Project>>();
+            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Order.Order>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new ProjectContext(optionsBuilder.Options, sp.GetService<ILogger<ProjectContext>>()!, sp);
+            return new OrderContext(optionsBuilder.Options, sp,sp.GetService<ILogger<OrderContext>>()!);
         });
-        //TagContext
+        //ProductContext
         webApplicationBuilder.Services.AddScoped(sp =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Tag.Tag>>();
+            var optionsBuilder = new DbContextOptionsBuilder<ModelBaseContext<Lap.Model.Models.Product.Product>>();
             optionsBuilder.UseMySql(connectionString!, ServerVersion.AutoDetect(connectionString));
 
-            return new TagContext(optionsBuilder.Options, sp.GetService<ILogger<TagContext>>()!, sp);
+            return new ProductContext(optionsBuilder.Options, sp,sp.GetService<ILogger<ProductContext>>()!);
         });
         
         //Register remaining handlers
@@ -75,17 +75,9 @@ public static class ModelContextHelper
     {
         using var scope = webApplication.Services.CreateScope();
 
-        //Migrates HourEntry and all dependent tables!
-        var hourEntryContext = scope.ServiceProvider.GetService<HourEntryContext>()!;
-        hourEntryContext.Database.Migrate();
+        //Migrates models with mapping and all dependent tables!
+        var cartContext = scope.ServiceProvider.GetService<CartContext>()!;
+        cartContext.Database.Migrate();
 
-        var workTimeContext = scope.ServiceProvider.GetService<WorkTimeContext>()!;
-        workTimeContext.Database.Migrate();
-
-        var holidayContext = scope.ServiceProvider.GetService<HolidayContext>()!;
-        holidayContext.Database.Migrate();
-
-        var tagContext = scope.ServiceProvider.GetService<TagContext>()!;
-        tagContext.Database.Migrate();
     }
 }

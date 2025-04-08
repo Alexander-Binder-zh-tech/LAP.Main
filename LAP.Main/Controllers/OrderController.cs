@@ -1,29 +1,31 @@
-using LAP.Main.Contexts.Customer;
+using LAP.Main.Contexts.Address;
+using LAP.Main.Contexts.Order;
 using Lap.Model;
-using Lap.Model.Models.Customer;
+using Lap.Model.Models.Address;
+using Lap.Model.Models.Order;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LAP.Main.Controllers;
 
-[Route("/api/master-data/customer")]
+[Route("/api/master-data/order")]
 [ApiController]
-public class CustomerController : ControllerBase
+public class OrderController : ControllerBase
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public CustomerController(IServiceProvider serviceProvider)
+    public OrderController(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     
     [HttpGet("get-all")]
-    [SwaggerOperation("GetAllCustomers")]
+    [SwaggerOperation("GetAllOrders")]
     //[Authorize(Policy = BuildInUserRoles.AdminRole)]
-    public async Task<IActionResult> GetAllCustomers([FromQuery] bool addDeleted)
+    public async Task<IActionResult> GetAllOrders([FromQuery] bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<OrderContext>()!;
         
         var result = await sc.GetAll(addDeleted);
         return result.Error switch
@@ -35,12 +37,12 @@ public class CustomerController : ControllerBase
     }
     
     [HttpGet("get")]
-    [SwaggerOperation("GetCustomer")]
+    [SwaggerOperation("GetOrder")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> GetCustomer(int id, bool addDeleted)
+    public async Task<IActionResult> GetOrder(int id, bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<OrderContext>()!;
         
         var result = await sc.Get(id, addDeleted);
         return result.Error switch
@@ -52,14 +54,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("create")]
-    [SwaggerOperation("CreateCustomer")]
+    [SwaggerOperation("CreateOrder")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> CreateCustomer([FromBody]Customer customer)
+    public async Task<IActionResult> CreateOrder([FromBody] Order order)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<OrderContext>()!;
         
-        var result = await sc.Create(customer);
+        var result = await sc.Create(order);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -69,14 +71,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("edit")]
-    [SwaggerOperation("EditCustomer")]
+    [SwaggerOperation("EditOrder")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> EditCustomer(int id, [FromBody] Customer customer)
+    public async Task<IActionResult> EditOrder(int id, [FromBody] Order order)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<OrderContext>()!;
         
-        var result = await sc.Edit(id, customer);
+        var result = await sc.Edit(id, order);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -86,12 +88,12 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [SwaggerOperation("DeleteCustomer")]
+    [SwaggerOperation("DeleteOrder")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> DeleteCustomer(int id)
+    public async Task<IActionResult> DeleteOrder(int id)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<OrderContext>()!;
         
         var result = await sc.SetDelete(id, true);
         return result.Error switch

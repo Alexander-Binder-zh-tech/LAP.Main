@@ -42,9 +42,8 @@ public static class BuildInUserRoles
 
 public static class BuildInUserRoleGroups
     {
-        public const string SysAdmin = "HR_UserRoleGroup_SysAdmin";
-        public const string Admin = "HR_UserRoleGroup_Admin";
-        public const string Authenticated = "HR_UserRoleGroup_Authenticated";
+        public const string SysAdmin = "lap_UserRoleGroup_SysAdmin";
+        public const string Authenticated = "lap_UserRoleGroup_Authenticated";
 
         public static readonly List<UserRoleGroup> BuildInUserRoleGroupList =
         [
@@ -54,15 +53,6 @@ public static class BuildInUserRoleGroups
                 Roles =
                 [
                     BuildInUserRoles.SysAdminRole,
-                    BuildInUserRoles.AdminRole,
-                    BuildInUserRoles.Authenticated
-                ]
-            },
-            new UserRoleGroup
-            {
-                Name = Admin,
-                Roles =
-                [
                     BuildInUserRoles.AdminRole,
                     BuildInUserRoles.Authenticated
                 ]
@@ -81,7 +71,6 @@ public static class BuildInUserRoleGroups
 public static class BuildInUsers
 {
     public const string SysAdmin = "sysAdmin";
-    public const string Admin = "admin";
     public const string AuthenticatedUser = "user";
 
     public static readonly List<DefaultUser> BuildInUsersList =
@@ -93,16 +82,6 @@ public static class BuildInUsers
             RoleGroups =
             [
                 BuildInUserRoleGroups.SysAdmin
-            ]
-        },
-
-        new()
-        {
-            UserName = Admin,
-            Password = Admin,
-            RoleGroups =
-            [
-                BuildInUserRoleGroups.Admin
             ]
         },
 

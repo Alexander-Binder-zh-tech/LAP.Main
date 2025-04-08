@@ -31,7 +31,7 @@ public class UserContext : DbContext
         modelBuilder.Entity<User>()
             .HasMany(e => e.RoleGroups)
             .WithMany(e => e.Users)
-            .UsingEntity("hr4you_userToUserRoleGroups");
+            .UsingEntity("lap_userToUserRoleGroups");
 
         modelBuilder
             .Entity<UserRoleGroup>()

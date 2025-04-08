@@ -1,29 +1,29 @@
-using LAP.Main.Contexts.Customer;
+using LAP.Main.Contexts.Address;
 using Lap.Model;
-using Lap.Model.Models.Customer;
+using Lap.Model.Models.Address;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LAP.Main.Controllers;
 
-[Route("/api/master-data/customer")]
+[Route("/api/master-data/address")]
 [ApiController]
-public class CustomerController : ControllerBase
+public class AddressController : ControllerBase
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public CustomerController(IServiceProvider serviceProvider)
+    public AddressController(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     
     [HttpGet("get-all")]
-    [SwaggerOperation("GetAllCustomers")]
+    [SwaggerOperation("GetAllAddresses")]
     //[Authorize(Policy = BuildInUserRoles.AdminRole)]
-    public async Task<IActionResult> GetAllCustomers([FromQuery] bool addDeleted)
+    public async Task<IActionResult> GetAllAddresses([FromQuery] bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
         
         var result = await sc.GetAll(addDeleted);
         return result.Error switch
@@ -35,12 +35,12 @@ public class CustomerController : ControllerBase
     }
     
     [HttpGet("get")]
-    [SwaggerOperation("GetCustomer")]
+    [SwaggerOperation("GetAddress")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> GetCustomer(int id, bool addDeleted)
+    public async Task<IActionResult> GetAddress(int id, bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
         
         var result = await sc.Get(id, addDeleted);
         return result.Error switch
@@ -52,14 +52,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("create")]
-    [SwaggerOperation("CreateCustomer")]
+    [SwaggerOperation("CreateAddress")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> CreateCustomer([FromBody]Customer customer)
+    public async Task<IActionResult> CreateAddress([FromBody]Address address)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
         
-        var result = await sc.Create(customer);
+        var result = await sc.Create(address);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -69,14 +69,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("edit")]
-    [SwaggerOperation("EditCustomer")]
+    [SwaggerOperation("EditAddress")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> EditCustomer(int id, [FromBody] Customer customer)
+    public async Task<IActionResult> EditAddress(int id, [FromBody] Address address)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
         
-        var result = await sc.Edit(id, customer);
+        var result = await sc.Edit(id, address);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -86,12 +86,12 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [SwaggerOperation("DeleteCustomer")]
+    [SwaggerOperation("DeleteAddress")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> DeleteCustomer(int id)
+    public async Task<IActionResult> DeleteAddress(int id)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
         
         var result = await sc.SetDelete(id, true);
         return result.Error switch

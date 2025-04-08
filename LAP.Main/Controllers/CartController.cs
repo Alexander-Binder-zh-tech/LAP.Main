@@ -1,29 +1,29 @@
-using LAP.Main.Contexts.Customer;
+using LAP.Main.Contexts.Cart;
 using Lap.Model;
-using Lap.Model.Models.Customer;
+using Lap.Model.Models.Cart;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LAP.Main.Controllers;
 
-[Route("/api/master-data/customer")]
+[Route("/api/master-data/cart")]
 [ApiController]
-public class CustomerController : ControllerBase
+public class CartController : ControllerBase
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public CustomerController(IServiceProvider serviceProvider)
+    public CartController(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     
     [HttpGet("get-all")]
-    [SwaggerOperation("GetAllCustomers")]
+    [SwaggerOperation("GetAllCart")]
     //[Authorize(Policy = BuildInUserRoles.AdminRole)]
-    public async Task<IActionResult> GetAllCustomers([FromQuery] bool addDeleted)
+    public async Task<IActionResult> GetAllCart([FromQuery] bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<CartContext>()!;
         
         var result = await sc.GetAll(addDeleted);
         return result.Error switch
@@ -35,12 +35,12 @@ public class CustomerController : ControllerBase
     }
     
     [HttpGet("get")]
-    [SwaggerOperation("GetCustomer")]
+    [SwaggerOperation("GetCart")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> GetCustomer(int id, bool addDeleted)
+    public async Task<IActionResult> GetCart(int id, bool addDeleted)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<CartContext>()!;
         
         var result = await sc.Get(id, addDeleted);
         return result.Error switch
@@ -52,14 +52,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("create")]
-    [SwaggerOperation("CreateCustomer")]
+    [SwaggerOperation("CreateCart")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> CreateCustomer([FromBody]Customer customer)
+    public async Task<IActionResult> CreateCart([FromBody]Cart cart)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<CartContext>()!;
         
-        var result = await sc.Create(customer);
+        var result = await sc.Create(cart);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -69,14 +69,14 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("edit")]
-    [SwaggerOperation("EditCustomer")]
+    [SwaggerOperation("EditCart")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> EditCustomer(int id, [FromBody] Customer customer)
+    public async Task<IActionResult> EditCart(int id, [FromBody] Cart cart)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<CartContext>()!;
         
-        var result = await sc.Edit(id, customer);
+        var result = await sc.Edit(id, cart);
         if (result.Error == MasterDataError.None)
         {
             return Ok(result.Entity);
@@ -86,12 +86,12 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [SwaggerOperation("DeleteCustomer")]
+    [SwaggerOperation("DeleteCart")]
     // [Authorize(Policy = BuildInUserRoles.Authenticated)]
-    public async Task<IActionResult> DeleteCustomer(int id)
+    public async Task<IActionResult> DeleteCart(int id)
     {
         using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<CustomerContext>()!;
+        var sc = scope.ServiceProvider.GetService<CartContext>()!;
         
         var result = await sc.SetDelete(id, true);
         return result.Error switch

@@ -1,5 +1,4 @@
 ﻿using Lap.Model;
-using Lap.Model.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -51,6 +50,8 @@ public class ModelBaseContext<T> : DbContext where T : ModelBase
         return result;
     }
 
+    //todo hard delete
+    
     public async Task<ModelResult<T>> SetDelete(int id, bool deleted)
     {
         var result = await Get(id);
@@ -74,7 +75,7 @@ public class ModelBaseContext<T> : DbContext where T : ModelBase
         var linq = Entities.AsQueryable();
         if (!addDeleted)
         {
-            linq = linq.Where(e => e.Deleted != true);
+            linq = linq.Where(e => e.Deleted == true);
         }
 
         var entity = await linq.FirstOrDefaultAsync(j => j.Id == id);
@@ -97,66 +98,5 @@ public class ModelBaseContext<T> : DbContext where T : ModelBase
 
         var result = await linq.OrderByDescending(x => x.Id).ToListAsync();
         return ModelResult<List<T>>.Ok(result);
-    }
-
-    protected async Task<ModelResult<PagedResponseKeySet<T>>> GetAllKeyPaged(List<ColumnFilter>? columnFilters,
-        int reference, int pageSize,
-        bool addDeleted = true)
-    {
-        var linq = Entities.AsNoTracking().OrderBy(e => e.Id).AsQueryable();
-        if (!addDeleted)
-        {
-            linq = linq.Where(e => e.Deleted != true);
-        }
-
-        //Go to reference in key set
-        linq = linq.Where(e => e.Id > reference);
-
-        if (!columnFilters.IsNullOrEmpty())
-        {
-            var customFilter = CustomExpressionFilter<T>.CreateFilter(columnFilters!);
-
-            linq = linq.Where(customFilter);
-        }
-
-        var result = await linq
-            .Take(pageSize)
-            .OrderByDescending(e => e.Id)
-            .ToListAsync();
-
-        var newReference = result.Count != 0 ? result.Last().Id : 0;
-        var pagedResponse = new PagedResponseKeySet<T>(result, newReference);
-
-        return ModelResult<PagedResponseKeySet<T>>.Ok(pagedResponse);
-    }
-
-    public async Task<ModelResult<PagedResponseOffset<T>>> GetAllOffsetPaged(List<ColumnFilter>? columnFilters,
-        int pageNumber, int pageSize,
-        bool addDeleted = true)
-    {
-        var linq = Entities.AsNoTracking().OrderBy(e => e.Id).AsQueryable();
-        if (!addDeleted)
-        {
-            linq = linq.Where(e => e.Deleted != true);
-        }
-
-        if (!columnFilters.IsNullOrEmpty())
-        {
-            var customFilter = CustomExpressionFilter<T>.CreateFilter(columnFilters!);
-
-            linq = linq.Where(customFilter);
-        }
-
-        var totalRecords = await linq.CountAsync();
-
-        var result = await linq
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .OrderByDescending(e => e.Id)
-            .ToListAsync();
-
-        var pagedResponse = new PagedResponseOffset<T>(pageNumber, pageSize, totalRecords, result);
-
-        return ModelResult<PagedResponseOffset<T>>.Ok(pagedResponse);
     }
 }

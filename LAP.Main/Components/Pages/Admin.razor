@@ -1,8 +1,11 @@
-﻿@page "/"
+﻿@page "/admin"
+@attribute [StreamRendering]
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Admin</PageTitle>
 
-<h1>TODO Imagine reading a greeting banner here</h1>
+<h1>Admin</h1>
+
+<p>This component demonstrates showing data.</p>
 
 @if (forecasts == null)
 {
@@ -15,7 +18,7 @@ else
     <table class="table">
         <thead>
         <tr>
-            <th>Name</th>
+            <th>Date</th>
             <th>Temp. (C)</th>
             <th>Temp. (F)</th>
             <th>Summary</th>
