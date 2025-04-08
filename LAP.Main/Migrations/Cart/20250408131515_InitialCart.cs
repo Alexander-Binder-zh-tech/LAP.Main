@@ -42,6 +42,27 @@ namespace LAP.Main.Migrations.Cart
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "lap_product",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Price = table.Column<double>(type: "double", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreationDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_lap_product", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "lap_contact",
                 columns: table => new
                 {
@@ -132,7 +153,6 @@ namespace LAP.Main.Migrations.Cart
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ProductId = table.Column<int>(type: "int", nullable: true),
                     OrderId = table.Column<int>(type: "int", nullable: true),
                     CreationDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -150,31 +170,34 @@ namespace LAP.Main.Migrations.Cart
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "lap_product",
+                name: "CartProduct",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Price = table.Column<double>(type: "double", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ProductId = table.Column<int>(type: "int", nullable: true),
-                    CreationDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Deleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    CartId = table.Column<int>(type: "int", nullable: false),
+                    ProductsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_lap_product", x => x.Id);
+                    table.PrimaryKey("PK_CartProduct", x => new { x.CartId, x.ProductsId });
                     table.ForeignKey(
-                        name: "FK_lap_product_lap_cart_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_CartProduct_lap_cart_CartId",
+                        column: x => x.CartId,
                         principalTable: "lap_cart",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartProduct_lap_product_ProductsId",
+                        column: x => x.ProductsId,
+                        principalTable: "lap_product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartProduct_ProductsId",
+                table: "CartProduct",
+                column: "ProductsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_lap_cart_OrderId",
@@ -200,21 +223,19 @@ namespace LAP.Main.Migrations.Cart
                 name: "IX_lap_order_CustomerId",
                 table: "lap_order",
                 column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_lap_product_ProductId",
-                table: "lap_product",
-                column: "ProductId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "lap_product");
+                name: "CartProduct");
 
             migrationBuilder.DropTable(
                 name: "lap_cart");
+
+            migrationBuilder.DropTable(
+                name: "lap_product");
 
             migrationBuilder.DropTable(
                 name: "lap_order");

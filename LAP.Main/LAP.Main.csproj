@@ -12,6 +12,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="NLog" Version="5.3.4" />
       <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
@@ -24,12 +25,19 @@
 
     <ItemGroup>
       <Folder Include="Migrations\" />
+      <Folder Include="Migrations\Cart\" />
+      <Folder Include="wwwroot\images\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Lap.Components\Lap.Components.csproj" />
       <ProjectReference Include="..\Lap.Model\Lap.Model.csproj" />
       <ProjectReference Include="..\LAP.Security\LAP.Security.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Components\PopupProduct.razor" />
+      <None Include="Components\ProductsTable.razor" />
     </ItemGroup>
 
 </Project>

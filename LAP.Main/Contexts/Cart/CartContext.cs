@@ -15,6 +15,13 @@ public class CartContext : ModelBaseContext<Lap.Model.Models.Cart.Cart>
         _logger = logger;
     }
     
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<Lap.Model.Models.Cart.Cart>().HasOne(c => c.Order).WithMany().HasForeignKey(c => c.OrderId);
+        modelBuilder.Entity<Lap.Model.Models.Cart.Cart>().HasMany(c => c.Products).WithMany();
+    }
     
     public class CartContextDesignTimeFactory : IDesignTimeDbContextFactory<CartContext>
     {

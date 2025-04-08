@@ -1,0 +1,82 @@
+﻿@using System.Globalization
+@using Lap.Model.Models.Product
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@inject HttpClient HttpClient
+
+<PopupProduct @ref="popupRef" OnProductUpdated="RefreshTable" />
+
+<table class="blueTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in entries)
+        {
+            <tr>
+                <td>@entry.Name</td>
+                <td>@entry.Description</td>
+                <td>@entry.Price.ToString(CultureInfo.InvariantCulture)</td>
+                <td class="table-action">
+                    <button type="button" class="btn btn-danger" @onclick="(() => DeleteEntry(entry.Id))"><i class="fa fa-trash"></i></button>
+                    <button type="button" class="btn btn-primary" @onclick="(() => EditEntry(entry.Id))"><i class="fa fa-pencil"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@code {
+
+    [Parameter] public List<Product> entries { get; set; }
+
+    [Parameter] public EventCallback OnProductUpdated2 { get; set; }
+
+    private PopupProduct popupRef;
+
+    public string RequestURLEdit = "http://localhost:5015/api/master-data/product/get?addDeleted=true&Id=";
+
+    public string RequestURLDelete = "http://localhost:5015/api/master-data/product/delete?Id=";
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && popupRef != null)
+        {
+            popupRef.OnProductUpdated = EventCallback.Factory.Create(this, RefreshTable);
+        }
+    }
+
+    private async Task EditEntry(int GivenId)
+    {
+        await popupRef.ShowEdit(GivenId, RequestURLEdit, "Edit Product");
+    }
+
+    private async Task DeleteEntry(int GivenId)
+    {
+        await HttpClient.DeleteFromJsonAsync<Product>(RequestURLDelete + GivenId);
+        Console.WriteLine("RefreshTable() was called from ProductTable");
+        await RefreshTable();
+    }
+
+    private async Task RefreshTable()
+    {
+        Console.WriteLine("RefreshTable() was called from ProductTable");
+        if (OnProductUpdated2.HasDelegate)
+        {
+            await OnProductUpdated2.InvokeAsync(); // Notify the parent component
+        }
+        else
+        {
+            Console.WriteLine("OnProductUpdated has no delegate assigned.");
+        }
+    }
+
+}
+

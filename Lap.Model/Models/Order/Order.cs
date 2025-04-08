@@ -13,7 +13,6 @@ public class Order : ModelBase
     public required PaymentType PaymentType { get; set; }
     
     //Navigation prop for EF mapping
-    [ForeignKey(nameof(CustomerId))]
     public Customer.Customer Customer { get; set; } = null!;
     
     public override void Set(ModelBase model)
@@ -30,10 +29,4 @@ public class Order : ModelBase
         Total = data.Total;
         PaymentType = data.PaymentType;
     }
-}
-
-public enum PaymentType
-{
-    Bill,
-    CreditCard
 }

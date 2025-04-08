@@ -22,6 +22,21 @@ namespace LAP.Main.Migrations.Cart
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("CartProduct", b =>
+                {
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("CartProduct");
+                });
+
             modelBuilder.Entity("Lap.Model.Models.Address.Address", b =>
                 {
                     b.Property<int>("Id")
@@ -77,9 +92,6 @@ namespace LAP.Main.Migrations.Cart
                         .HasColumnType("datetime(6)");
 
                     b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -222,14 +234,24 @@ namespace LAP.Main.Migrations.Cart
                     b.Property<double>("Price")
                         .HasColumnType("double");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
-
                     b.ToTable("lap_product");
+                });
+
+            modelBuilder.Entity("CartProduct", b =>
+                {
+                    b.HasOne("Lap.Model.Models.Cart.Cart", null)
+                        .WithMany()
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Lap.Model.Models.Product.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Lap.Model.Models.Cart.Cart", b =>
@@ -280,18 +302,6 @@ namespace LAP.Main.Migrations.Cart
                         .IsRequired();
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("Lap.Model.Models.Product.Product", b =>
-                {
-                    b.HasOne("Lap.Model.Models.Cart.Cart", null)
-                        .WithMany("Products")
-                        .HasForeignKey("ProductId");
-                });
-
-            modelBuilder.Entity("Lap.Model.Models.Cart.Cart", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Lap.Model.Models.Customer.Customer", b =>

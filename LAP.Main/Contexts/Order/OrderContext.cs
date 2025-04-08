@@ -15,6 +15,13 @@ public class OrderContext : ModelBaseContext<Lap.Model.Models.Order.Order>
         _logger = logger;
     }
     
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<Lap.Model.Models.Order.Order>().HasOne(o => o.Customer).WithMany(c => c.Orders).HasForeignKey(o => o.CustomerId);
+    }
+    
     public class OrderContextDesignTimeFactory : IDesignTimeDbContextFactory<OrderContext>
     {
         public OrderContext CreateDbContext(string[] args)

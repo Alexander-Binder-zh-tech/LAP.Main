@@ -1,0 +1,108 @@
+﻿@page "/product"
+@using Newtonsoft.Json
+@rendermode InteractiveServer
+
+<PageTitle>Products</PageTitle>
+<div class="page">
+
+    <div class="page-header">
+        <h1><i class="fa-solid fa-filter"></i>Products</h1>
+    </div>
+
+    <div class="page-content">
+        @if (Products == null)
+        {
+            <div class="loading-overlay">
+                <div class="loading-content">
+                    <svg class="animate-spin h-20 w-20 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                        <circle class="opacity-25" cx="25" cy="25" r="20" stroke="currentColor" stroke-width="5" fill="none">
+                        </circle>
+                        <circle class="opacity-75" cx="25" cy="25" r="20" stroke="currentColor" stroke-width="5"
+                                stroke-linecap="round" fill="none" stroke-dasharray="31.415, 31.415" transform="rotate(90 25 25)">
+                            <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="5s"
+                                              keyTimes="0;1" values="0 25 25;360 25 25"></animateTransform>
+                        </circle>
+                    </svg>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <ProductsTable entries="Products" @ref="popupRef2" OnProductUpdated2="RefreshTable2">
+                </ProductsTable>
+            </div>
+
+        }
+    </div>
+</div>
+
+@code {
+
+    private const string ApiEndpointRoute = "api/master-data/product/";
+    private const string GetAllApiEndpoint = $"{ApiEndpointRoute}get-all";
+
+    public List<Lap.Model.Models.Product.Product>? Products;
+    public Dictionary<string, string> Parameters;
+
+    public bool addDeleted;
+
+    private ProductsTable? popupRef2;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            addDeleted = false;
+            await LoadProducts();
+        }
+
+        if (firstRender && popupRef2 != null)
+        {
+            popupRef2.OnProductUpdated2 = EventCallback.Factory.Create(this, RefreshTable2);
+        }
+    }
+    
+    private void UpdateEntries(List<Lap.Model.Models.Product.Product> newEntries)
+    {
+        Products = newEntries;
+    }
+
+    private async Task LoadProducts()
+    {
+        try
+        {
+            await LocalUserStorage.Load();
+            if (LocalUserStorage.UserInfo == null)
+            {
+                NavigationManager.NavigateTo(NavigationManager.BaseUri);
+                return;
+            }
+
+            Parameters = new Dictionary<string, string>
+            {
+                { nameof(addDeleted), addDeleted.ToString() }
+            };
+
+            var request = HttpQueryHandler.CreateEndpointRequestWithJwt(HttpMethod.Get, GetAllApiEndpoint, Parameters, LocalUserStorage.UserInfo.AuthToken);
+            var response = await HttpClient.SendAsync(request);
+
+            var content = await HttpQueryHandler.ProcessHttpResponse(NavigationManager, response);
+            if (content != null) Products = JsonConvert.DeserializeObject<List<Lap.Model.Models.Product.Product>>(content);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching entries: {ex.Message}");
+        }
+    }
+    
+    private async Task RefreshTable2()
+    {
+        Console.WriteLine("RefreshTable2() was called from Product");
+        await LoadProducts();
+
+        StateHasChanged();
+    }
+}

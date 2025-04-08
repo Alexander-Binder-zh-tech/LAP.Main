@@ -6,14 +6,10 @@ namespace Lap.Model.Models.Cart;
 //Acts as mapping between Products and Orders - also references to customer
 public class Cart : ModelBase
 {
-    public int? ProductId { get; set; }
     public int? OrderId { get; set; }
     
     //Navigation props for EF mapping
-    [ForeignKey(nameof(ProductId))]
-    public List<Product.Product>? Products { get; set; } = null!;
-    
-    [ForeignKey(nameof(OrderId))]
+    public List<Product.Product>? Products { get; set; }
     public Order.Order Order { get; set; } = null!;
     
     public override void Set(ModelBase model)
@@ -24,7 +20,6 @@ public class Cart : ModelBase
             throw new ArgumentException($"called with wrong type -> should be {nameof(Cart)}");
         }
         
-        ProductId = data.ProductId;
         OrderId = data.OrderId;
     }
 }

@@ -11,10 +11,7 @@ public class Contact : ModelBase
     public required int DeliveryAddressId { get; set; }
     
     //Navigation props for EF mapping
-    [ForeignKey(nameof(AddressId))]
     public Address.Address Address { get; set; } = null!;
-
-    [ForeignKey(nameof(DeliveryAddressId))]
     public Address.Address DeliveryAddress { get; set; } = null!;
 
     public override void Set(ModelBase model)

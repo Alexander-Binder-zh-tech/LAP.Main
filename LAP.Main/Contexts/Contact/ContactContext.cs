@@ -15,6 +15,14 @@ public class ContactContext : ModelBaseContext<Lap.Model.Models.Contact.Contact>
         _logger = logger;
     }
     
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<Lap.Model.Models.Contact.Contact>().HasOne(c => c.Address).WithOne().HasForeignKey<Lap.Model.Models.Contact.Contact>(c => c.AddressId);
+        modelBuilder.Entity<Lap.Model.Models.Contact.Contact>().HasOne(c => c.DeliveryAddress).WithOne().HasForeignKey<Lap.Model.Models.Contact.Contact>(c => c.DeliveryAddressId);
+    }
+    
     public class ContactContextDesignTimeFactory : IDesignTimeDbContextFactory<ContactContext>
     {
         public ContactContext CreateDbContext(string[] args)

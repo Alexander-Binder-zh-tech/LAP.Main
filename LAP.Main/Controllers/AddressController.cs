@@ -11,10 +11,13 @@ namespace LAP.Main.Controllers;
 public class AddressController : ControllerBase
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly AddressContext _context;
+    
 
-    public AddressController(IServiceProvider serviceProvider)
+    public AddressController(IServiceProvider serviceProvider, AddressContext context)
     {
         _serviceProvider = serviceProvider;
+        _context = context; 
     }
     
     [HttpGet("get-all")]
@@ -22,10 +25,7 @@ public class AddressController : ControllerBase
     //[Authorize(Policy = BuildInUserRoles.AdminRole)]
     public async Task<IActionResult> GetAllAddresses([FromQuery] bool addDeleted)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var sc = scope.ServiceProvider.GetService<AddressContext>()!;
-        
-        var result = await sc.GetAll(addDeleted);
+        var result = await _context.GetAll(addDeleted);
         return result.Error switch
         {
             MasterDataError.None => Ok(result.Entity),

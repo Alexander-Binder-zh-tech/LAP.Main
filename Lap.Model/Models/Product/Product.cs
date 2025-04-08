@@ -5,9 +5,8 @@ namespace Lap.Model.Models.Product;
 [Table("lap_product")]
 public class Product : ModelBase
 {
-    //todo image save -> possible with path
-    public required string Name { get; set; }
-    public required double Price { get; set; }
+    public string Name { get; set; } = null!;
+    public double Price { get; set; }
     public string? Description { get; set; }
     
     public override void Set(ModelBase model)
